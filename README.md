@@ -43,6 +43,8 @@ Download a precompiled version here:
 - Navigate to `target\release\`
 - Execute `SkinsMod.exe` or `run.bat` as administrator
 
+##### I recommend using a UI scale of `0.820` (see [Known Issues](#-known-issues))
+
 #### In your inventory, look for:
 
 | Skin Menu Button |
