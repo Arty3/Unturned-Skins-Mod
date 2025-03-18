@@ -54,6 +54,7 @@ namespace SkinsModule
             { 25, new EffectColorPair("Blood Sucker",       new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
             { 30, new EffectColorPair("Blossoming",         new Color { r = 200, g = 0,   b = 255, a = 1f }) },
             { 51, new EffectColorPair("Crimson Navigator",  new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
+            { 62, new EffectColorPair("Cascading Chips",    new Color { r = 255, g = 255, b = 255, a = 1f }) },
             { 52, new EffectColorPair("Dazzling",           new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 9,  new EffectColorPair("Bubbling",           new Color { r = 255, g = 255, b = 255, a = 1f }) },
             { 1,  new EffectColorPair("Burning",            new Color { r = 255, g = 130, b = 0,   a = 1f }) },
@@ -61,6 +62,13 @@ namespace SkinsModule
             { 55, new EffectColorPair("Golden Confetti",    new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 10, new EffectColorPair("Cosmic",             new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 8,  new EffectColorPair("Divine",             new Color { r = 255, g = 200, b = 0,   a = 1f }) },
+            { 63, new EffectColorPair("Dizzy Birds",        new Color { r = 0,   g = 225, b = 255, a = 1f }) },
+            { 64, new EffectColorPair("Dizzy Stars",        new Color { r = 255, g = 200, b = 0,   a = 1f }) },
+            { 65, new EffectColorPair("Golden Butterflies", new Color { r = 255, g = 200, b = 0,   a = 1f }) },
+            { 66, new EffectColorPair("Magic Butterflies",  new Color { r = 0,   g = 225, b = 255, a = 1f }) },
+            { 59, new EffectColorPair("Pretty Ipê",         new Color { r = 255, g = 200, b = 0,   a = 1f }) },
+            { 60, new EffectColorPair("Thorny Roses",       new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
+            { 61, new EffectColorPair("Toxic",              new Color { r = 0,   g = 255, b = 0,   a = 1f }) },
             { 29, new EffectColorPair("Ice Dragon",         new Color { r = 0,   g = 225, b = 255, a = 1f }) },
             { 28, new EffectColorPair("Fire Dragon",        new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
             { 31, new EffectColorPair("Bananza",            new Color { r = 255, g = 200, b = 0,   a = 1f }) },
@@ -109,73 +117,46 @@ namespace SkinsModule
 
         private static Dictionary<ushort, string> _particleEffects = new Dictionary<ushort, string>()
         {
-            { 43, "Electrostatic" },
-            { 30, "Blossoming" },
-            { 9,  "Bubbling" },
-            { 1,  "Burning" },
-            { 22, "Confetti" },
-            { 10, "Cosmic" },
-            { 11, "Electric" },
-            { 39, "Frosty" },
-            { 40, "Spectral Gems" },
-            { 33, "Decked Out" },
-            { 34, "Crystal Shards" },
-            { 35, "Soul Shattered" },
-            { 36, "Enchanted" },
-            { 16, "Energized" },
-            { 15, "Freezing" },
-            { 48, "Firefly" },
-            { 6,  "Glitched" },
-            { 27, "Sky Lantern" },
-            { 3,  "Lovely" },
-            { 26, "Lucky Coins" },
-            { 21, "Melting" },
-            { 18, "Meta" },
-            { 4,  "Musical" },
-            { 17, "Holiday Spirit" },
-            { 23, "Radioactive" },
-            { 5,  "Shiny" },
-            { 24, "Steampunk" },
-            { 7,  "Wealthy" }
-        };
-
-        private static Dictionary<ushort, string> _headOnlyEffects = new Dictionary<ushort, string>()
-        {
-            { 44, "Wicked Aura" },
-            { 20, "Atomic" },
-            { 51, "Crimson Navigator" },
-            { 52, "Dazzling" },
-            { 8,  "Divine" },
-            { 29, "Ice Dragon" },
-            { 28, "Fire Dragon" },
-            { 31, "Bananza" },
-            { 32, "High Tide" },
-            { 38, "Sacrificial" },
-            { 37, "Cryptic Runes" },
-            { 47, "Fire Crown" },
-            { 46, "Ice Crown" },
-            { 49, "Falling Icicles" },
-            { 50, "Snowflake" },
-            { 2,  "Glowing" },
-            { 14, "Haunted" },
-            { 45, "Palm Nights" },
-            { 41, "Sunrise" },
-            { 42, "Sunset" },
-            { 13, "Party" },
-            { 54, "Purple Hole" },
-            { 19, "Pyrotechnic" },
-            { 12, "Rainbow" }
+            { 43, "Electrostatic"       },
+            { 30, "Blossoming"          },
+            { 9,  "Bubbling"            },
+            { 1,  "Burning"             },
+            { 62, "Cascading Chips"     },
+            { 22, "Confetti"            },
+            { 10, "Cosmic"              },
+            { 11, "Electric"            },
+            { 39, "Frosty"              },
+            { 65, "Golden Butterflies"  },
+            { 66, "Magic Butterflies"   },
+            { 59, "Pretty Ipê"          },
+            { 60, "Thorny Roses"        },
+            { 61, "Toxic"               },
+            { 40, "Spectral Gems"       },
+            { 33, "Decked Out"          },
+            { 34, "Crystal Shards"      },
+            { 35, "Soul Shattered"      },
+            { 36, "Enchanted"           },
+            { 16, "Energized"           },
+            { 15, "Freezing"            },
+            { 48, "Firefly"             },
+            { 6,  "Glitched"            },
+            { 27, "Sky Lantern"         },
+            { 3,  "Lovely"              },
+            { 26, "Lucky Coins"         },
+            { 21, "Melting"             },
+            { 18, "Meta"                },
+            { 4,  "Musical"             },
+            { 17, "Holiday Spirit"      },
+            { 23, "Radioactive"         },
+            { 5,  "Shiny"               },
+            { 24, "Steampunk"           },
+            { 7,  "Wealthy"             }
         };
 
         public static Dictionary<ushort, string> AllEffects      =  _allEffects.ToDictionary(
                                                                         kvp => kvp.Key,
                                                                         kvp => kvp.Value.effect);
         public static Dictionary<ushort, string> ParticleEffects => _particleEffects;
-        public static Dictionary<ushort, string> HeadOnlyEffects => _headOnlyEffects;
-
-        public static Dictionary<ushort, string> CosmeticEffects = _allEffects.Where(
-                                                                    kvp => !_headOnlyEffects.ContainsKey(kvp.Key))
-                                                                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.effect);
 
         public static Color getEffectColor(string effect)
         {
@@ -350,14 +331,6 @@ namespace SkinsModule
         public bool isMythical(string itemName)
         {
             return itemName.ToLowerInvariant().StartsWith("mythical ");
-        }
-
-        public bool isMythical(int itemDefId)
-        {
-            if (!econInfo.TryGetValue(itemDefId, out var item))
-                return false;
-
-            return item.quality == UnturnedEconInfo.EQuality.Mythical;
         }
 
         public static bool isAchievementItem(int itemDefId)

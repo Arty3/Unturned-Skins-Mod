@@ -36,12 +36,13 @@ Download a precompiled version here:
 | Download | Release | Working |
 |:---------|:--------|:--------|
 | [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)| 1.0 | Yes |
+| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip)| 1.1 | Yes |
 
 ## 💻 Usage
 
 - Unzip [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)
 - Navigate to `target\release\`
-- Execute `SkinsMod.exe` or `run.bat` as administrator
+- Execute `SkinsMod.exe` as administrator
 
 ##### I recommend using a UI scale of `0.820` (see [Known Issues](#-known-issues))
 
