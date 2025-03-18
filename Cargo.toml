@@ -1,0 +1,20 @@
+[package]
+name = "SkinsMod"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+winreg = "0.10"
+regex = "1.5"
+
+[dependencies.windows]
+version = "0.48"
+features = [
+	"Win32_Foundation",
+	"Win32_Security", 
+	"Win32_System_Threading",
+	"Win32_System_ProcessStatus",
+	"Win32_System_Diagnostics_ToolHelp"
+]

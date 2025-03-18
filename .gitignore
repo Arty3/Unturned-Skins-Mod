@@ -1,0 +1,9 @@
+# Compiled
+/target
+Cargo.lock
+
+# Caching
+.gamepath
+
+# Dev stuff I use
+copy.bat
