@@ -37,7 +37,7 @@ Download a precompiled version here:
 |:---------|:--------|:--------|:------|
 | [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)| 1.0 | Buggy | Initial Release |
 | [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip)| 1.1 | Buggy | Added Rio Assets |
-| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip)| 1.2 | Yes | Fixed Bugs |
+| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip)| 1.2 | Yes | Fixed Issues |
 
 ## 💻 Usage
 
