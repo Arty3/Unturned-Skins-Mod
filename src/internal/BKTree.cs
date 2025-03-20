@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Collections.Generic;
 
+using Unturned.SystemEx;
 using SDG.Provider;
 
 using static SkinsModule.ModuleLogger;
-using Unturned.SystemEx;
 
 namespace SkinsModule
 {
@@ -39,8 +39,10 @@ namespace SkinsModule
 
         public BKTree(IEnumerable<UnturnedEconInfo> data)
         {
-            Log("Building EconInfo BKTree...");
-            foreach (var info in data) Add(info);
+			Log("Building EconInfo BKTree...");
+			foreach (var info in data)
+                if (!EconInfoLoader.isAchievementItem(info.itemdefid))
+                    Add(info);
 
             foundItems = new HashSet<int>();
         }

@@ -1,3 +1,4 @@
 @echo off
 
-.\target\release\SkinsMod.exe
+cmd /c .\target\release\SkinsMod.exe
+exit /b

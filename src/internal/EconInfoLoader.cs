@@ -24,7 +24,7 @@ namespace SkinsModule
 
         public Dictionary<int, UnturnedEconInfo> baseSkins          { get; private set; }
         public Dictionary<int, UnturnedEconInfo> skinsEconInfo      { get; private set; }
-        public Dictionary<int, UnturnedEconInfo> mythicalsEconInfo  { get; private set; }
+		public Dictionary<int, UnturnedEconInfo> mythicalsEconInfo  { get; private set; }
 
         /*
             I could go and parse all the mythical .dat files
@@ -214,7 +214,7 @@ namespace SkinsModule
 
             baseSkins = new Dictionary<int, UnturnedEconInfo>();
             skinsEconInfo = new Dictionary<int, UnturnedEconInfo>();
-            mythicalsEconInfo = new Dictionary<int, UnturnedEconInfo>();
+			mythicalsEconInfo = new Dictionary<int, UnturnedEconInfo>();
 
             try
             {
@@ -230,7 +230,8 @@ namespace SkinsModule
                     }
 
                     LoadItems(reader, version);
-                    Log("Successfully loaded EconInfo.bin");
+
+					Log("Successfully loaded EconInfo.bin");
 
                     Log($"Particle Craft Uniqueness: 1 in {skinsEconInfo.Count * _particleEffects.Count}.");
                 }
@@ -281,7 +282,7 @@ namespace SkinsModule
 
         public static bool isScrapItem(int itemdefid)
         {
-            return (itemdefid >= 19000 && itemdefid <= 19011 && itemdefid != 19044);
+            return ((itemdefid >= 19000 && itemdefid <= 19011) || itemdefid == 19044);
         }
 
         public static bool isBoxItem(string displayType)
@@ -304,6 +305,17 @@ namespace SkinsModule
             return displayType == "Ragdoll Modifier Tool";
         }
 
+        public static bool isCosmetic(EItemType type)
+        {
+            return  type == EItemType.HAT       &&
+                    type == EItemType.GLASSES   &&
+                    type == EItemType.MASK      &&
+                    type == EItemType.SHIRT     &&
+                    type == EItemType.VEST      &&
+                    type == EItemType.PANTS     &&
+                    type == EItemType.BACKPACK;
+		}
+
         public UnturnedEconInfo getMythicalVariantIfExist(int itemDefId, string effect)
         {
             UnturnedEconInfo baseItem = GetItemBaseData(itemDefId);
@@ -314,14 +326,18 @@ namespace SkinsModule
             string baseName = baseItem.name.ToLowerInvariant();
             string effectLower = effect.ToLowerInvariant();
 
-            foreach (var entry in econInfo)
+            foreach (var entry in mythicalsEconInfo)
             {
                 UnturnedEconInfo item = entry.Value;
                 if (item.quality == UnturnedEconInfo.EQuality.Mythical)
                 {
                     string itemNameLower = item.name.ToLowerInvariant();
-                    if (itemNameLower.Contains(baseName) && itemNameLower.Contains(effectLower))
-                        return item;
+
+					if (itemNameLower.StartsWith("mythical "))
+						itemNameLower = itemNameLower.Substring(9);
+
+					if (itemNameLower == $"{effectLower} {baseName}")
+						return item;
                 }
             }
 
@@ -335,7 +351,7 @@ namespace SkinsModule
 
         public static bool isAchievementItem(int itemDefId)
         {
-            return itemDefId >= 400000 && itemDefId <= 400129;
+            return itemDefId >= 400000;
         }
 
         private bool ShouldIncludeBaseItem(UnturnedEconInfo item)
@@ -345,8 +361,7 @@ namespace SkinsModule
                    !isBoxItem(item.display_type) &&
                    !isBundleItem(item.display_type) &&
                    !isKeyItem(item.display_type) &&
-                   !isModifier(item.display_type) &&
-                   !isAchievementItem(item.itemdefid);
+                   !isModifier(item.display_type);
         }
 
         private bool ShouldIncludeSkinItem(UnturnedEconInfo item)
@@ -374,15 +389,21 @@ namespace SkinsModule
             if (item.itemdefid == 83700)
                 return false;
 
-            if (isAchievementItem(item.itemdefid))
-                return false;
-
             if (item.itemdefid >= 83600 &&
                 item.itemdefid <= 83611)
                 return false;
 
             if (item.itemdefid == 913 ||
                 item.itemdefid == 914)
+                return false;
+
+            if (item.name.ToLowerInvariant().Contains("sedan"))
+                return false;
+
+            if (item.name.ToLowerInvariant().Contains("offroader"))
+                return false;
+
+            if (isAchievementItem(item.itemdefid))
                 return false;
 
             return true;
@@ -417,9 +438,9 @@ namespace SkinsModule
         {
             if (skinsEconInfo == null || skinsEconInfo.Count == 0) return -1;
 
-            return skinsEconInfo.Keys.ElementAt(
-                UnityEngine.Random.Range(0, skinsEconInfo.Count));
-        }
+			return skinsEconInfo.Keys.ElementAt(
+				UnityEngine.Random.Range(0, skinsEconInfo.Count));
+		}
 
         public int GetRandomMythicalItemDefId()
         {

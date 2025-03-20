@@ -42,10 +42,17 @@ namespace SkinsModule
         {
             Instance = this;
 
-            // Counter intuative, it's just to prevent extra item loading
-            Level.onLevelLoaded += (int lvl) =>
+			LoadingUI.updateScene();
+
+			// Counter intuative, it's just to prevent extra item loading
+			Level.onLevelLoaded += (int lvl) =>
             {
                 ItemPersistenceManager.canPersistItems = false;
+            };
+
+            Level.onLevelExited += () =>
+            {
+                ItemPersistenceManager.canPersistItems = true;
             };
 
             _harmony = new Harmony("com.swaggerballs.UnturnedSkinGenerationModule");
@@ -72,17 +79,28 @@ namespace SkinsModule
             try
             {
                 _harmony.Patch(
+                    AccessTools.Method(typeof(MenuUI), "customStart"),
+                    postfix: new HarmonyMethod(typeof(MenuUIPatch), "Postfix_customStart")
+                );
+
+                _harmony.Patch(
                     AccessTools.Constructor(typeof(MenuSurvivorsClothingUI)),
                     postfix: new HarmonyMethod(typeof(MenuSurvivorsClothingUIPatch), "Postfix_Constructor")
                 );
 
+				_harmony.Patch(
+	                AccessTools.Method(typeof(MenuSurvivorsClothingUI), "open"),
+	                postfix: new HarmonyMethod(typeof(MenuSurvivorsClothingUIPatch), "Postfix_open")
+                );
+
+				_harmony.Patch(
+                    AccessTools.Method(typeof(MenuSurvivorsClothingUI), "onClickedInventory"),
+                    prefix: new HarmonyMethod(typeof(MenuSurvivorsClothingUIPatch), "Prefix_onClickedInventory")
+				);
+
                 _harmony.Patch(
                     AccessTools.Method(typeof(TempSteamworksEconomy), "refreshInventory"),
                     postfix: new HarmonyMethod(typeof(TempSteamworksEconomyPatch), "Postfix_refreshInventory")
-                );
-
-                _harmony.Patch(AccessTools.Method(typeof(MenuUI), "customStart"),
-                    postfix: new HarmonyMethod(typeof(MenuUIPatch), "Postfix_customStart")
                 );
 
                 _harmony.Patch(
@@ -90,12 +108,27 @@ namespace SkinsModule
                     prefix: new HarmonyMethod(typeof(TempSteamworksEconomyPatch), "Prefix_getInventoryMythicID")
                 );
 
-                _harmony.Patch(
+				_harmony.Patch(
+	                AccessTools.Method(typeof(TempSteamworksEconomy), "handleClientResultReady"),
+	                postfix: new HarmonyMethod(typeof(TempSteamworksEconomyPatch), "Postfix_handleClientResultReady")
+                );
+
+				_harmony.Patch(
                     AccessTools.Method(typeof(MenuSurvivorsClothingItemUI), "onClickedUseButton", new[] { typeof(ISleekElement) }),
                     prefix: new HarmonyMethod(typeof(MenuSurvivorsClothingItemUIPatch), "Prefix_onClickedUseButton")
                 );
 
-                Log("Successfully overrode game classes.");
+				_harmony.Patch(
+					AccessTools.Method(typeof(MenuSurvivorsClothingDeleteUI), "salvageItem"),
+					prefix: new HarmonyMethod(typeof(MenuSurvivorsClothingDeleteUIPatch), "Prefix_salvageItem")
+				);
+
+				_harmony.Patch(
+					AccessTools.Method(typeof(MenuSurvivorsClothingDeleteUI), "onClickedYesButton"),
+					prefix: new HarmonyMethod(typeof(MenuSurvivorsClothingDeleteUIPatch), "Prefix_onClickedYesButton")
+				);
+
+				Log("Successfully overrode game classes.");
             }
             catch (Exception e)
             {
@@ -139,9 +172,9 @@ namespace SkinsModule
                 grantedItem.m_itemId.m_SteamItemInstanceID);
 
             MenuSurvivorsClothingItemUI.open();
-            MenuSurvivorsClothingUI.close();
 
-            GenerateUI.open();
+			MenuSurvivorsClothingUI.close();
+			GenerateUI.open();
         }
 
         private SteamItemDetails_t _GenerateRandomItem(bool isParticle)

@@ -1,10 +1,15 @@
 use std::env;
 use std::fs;
+
 use std::io::{self, Write, BufReader, BufRead, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
+
 use std::process::Command;
 use std::thread::sleep;
 use std::time::Duration;
+
+use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use regex::Regex;
 use serde::{Serialize, Deserialize};
@@ -16,6 +21,8 @@ use windows::Win32::Security::TOKEN_QUERY;
 use windows::Win32::Foundation::CloseHandle;
 use windows::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
 use windows::Win32::Security::{GetTokenInformation, TOKEN_ELEVATION, TokenElevation};
+
+use ctrlc;
 
 fn fatal_error(message: &str, err: impl std::fmt::Display) -> !
 {
@@ -51,6 +58,12 @@ struct Assembly
 	load_as_byte_array: bool,
 }
 
+struct CleanupData
+{
+	mdl_path: PathBuf,
+	be_ini_path: PathBuf,
+}
+
 fn main()
 {
 	let base_path = match env::current_exe()
@@ -68,14 +81,14 @@ fn main()
 
 	if os_platform != "windows"
 	{
-		fatal_error("Unsupported operating system.", "This script only supports Windows");
+		fatal_error("Unsupported operating system.", "This program only supports Windows");
 	}
 
 	println!("Verifying administrator privileges...");
 
 	if !is_admin()
 	{
-		fatal_error("This script must be run as an administrator.", "Insufficient privileges");
+		fatal_error("This program must be run as an administrator.", "Insufficient privileges");
 	}
 
 	println!("Successfully verified administrator privileges.");
@@ -90,7 +103,72 @@ fn main()
 
 	println!("Located Unturned game files: {}", unt_path.display());
 
-	let mdl_path = unt_path.join("Modules").join("SkinsMod");
+	let mdl_path = unt_path.join("Modules").join("SkinsModule");
+	let be_ini_path = unt_path.join("BattlEye").join("BELauncher.ini");
+
+	let cleanup_data = Arc::new(Mutex::new(CleanupData {
+		mdl_path: mdl_path.clone(),
+		be_ini_path: be_ini_path.clone(),
+	}));
+
+	let running = Arc::new(AtomicBool::new(true));
+	let r = running.clone();
+	let cleanup_for_signal = cleanup_data.clone();
+	
+	ctrlc::set_handler(move || {
+		println!("\nIntercepted CTRL+C, performing cleanup...");
+		
+		if let Ok(data) = cleanup_for_signal.lock() {
+			if is_unturned_running() {
+				println!("Terminating Unturned process...");
+				let _ = Command::new("taskkill")
+					.args(&["/F", "/IM", "Unturned.exe"])
+					.output();
+				
+				sleep(Duration::from_secs(2));
+			}
+			
+			println!("Destroying module...");
+			if directory_exists(&data.mdl_path) {
+				if let Err(e) = fs::remove_dir_all(&data.mdl_path) {
+					println!("Warning: Failed to destroy module: {}", e);
+				} else {
+					println!("Successfully destroyed module.");
+				}
+			}
+			
+			println!("Re-enabling BattlEye...");
+			if file_exists(&data.be_ini_path) {
+				match fs::read_to_string(&data.be_ini_path) {
+					Ok(be_content) => {
+						let modified_lines: Vec<String> = be_content
+							.lines()
+							.map(|line| {
+								if line.starts_with("BEArg=") {
+									"BEArg=-BattlEye".to_string()
+								} else {
+									line.to_string()
+								}
+							})
+							.collect();
+						
+						let modified_content = modified_lines.join("\n");
+						
+						if let Err(e) = fs::write(&data.be_ini_path, modified_content) {
+							println!("Warning: Failed to re-enable BattlEye: {}", e);
+						} else {
+							println!("Successfully re-enabled BattlEye.");
+						}
+					},
+					Err(e) => println!("Warning: Failed to read BattlEye configuration: {}", e),
+				}
+			}
+		}
+		
+		println!("Cleanup completed. Exiting...");
+		r.store(false, Ordering::SeqCst);
+		std::process::exit(0);
+	}).expect("Error setting Ctrl-C handler");
 
 	if !unt_path.is_dir()
 	{
@@ -109,16 +187,6 @@ fn main()
 
 	println!("Successfully verified permissions.");
 
-	let data_path = base_path.join("data");
-	if !directory_exists(&data_path)
-	{
-		println!("Creating data directory...");
-		if let Err(e) = fs::create_dir_all(&data_path)
-		{
-			fatal_error("Failed to create data directory", e);
-		}
-	}
-
 	if !directory_exists(&mdl_path)
 	{
 		println!("Creating module directory...");
@@ -134,7 +202,7 @@ fn main()
 	if !directory_exists(&bin_path)
 	{
 		let src_bin_path = base_path.join("bin");
-		if !directory_exists(&src_bin_path) || !file_exists(&src_bin_path.join("SkinsMod.dll"))
+		if !directory_exists(&src_bin_path) || !file_exists(&src_bin_path.join("SkinsModule.dll"))
 		{
 			fatal_error("No binary detected to copy.", "Missing binary files");
 		}
@@ -161,7 +229,7 @@ fn main()
 		Err(e) => fatal_error("Failed to create language file", e),
 	};
 
-	match dat_file.write_all(b"Name SkinsMod\nDescription Module which modifies skins.")
+	match dat_file.write_all(b"Name SkinsModule\nDescription Module which modifies skins.")
 	{
 		Ok(_) => {},
 		Err(e) => fatal_error("Failed to write language file content", e),
@@ -174,12 +242,12 @@ fn main()
 	let module = Module
 	{
 		is_enabled: true,
-		name: "SkinsMod".to_string(),
+		name: "SkinsModule".to_string(),
 		version: "1.0.0.0".to_string(),
 		assemblies: vec![
 			Assembly
 			{
-				path: "/bin/SkinsMod.dll".to_string(),
+				path: "/bin/SkinsModule.dll".to_string(),
 				role: "Both_Optional".to_string(),
 				load_as_byte_array: false,
 			},
@@ -220,7 +288,7 @@ fn main()
 
 	println!("Writing content...");
 
-	let module_file_path = mdl_path.join("SkinsMod.module");
+	let module_file_path = mdl_path.join("SkinsModule.module");
 	match fs::write(&module_file_path, module_json)
 	{
 		Ok(_) => {},
@@ -233,7 +301,6 @@ fn main()
 	println!("Launching Unturned (without BattlEye)...");
 	println!("Disabling BattlEye...");
 
-	let be_ini_path = unt_path.join("BattlEye").join("BELauncher.ini");
 	let be_content = match fs::read_to_string(&be_ini_path)
 	{
 		Ok(content) => content,
@@ -289,10 +356,11 @@ fn main()
 
 	println!("Awaiting client shutdown...");
 	println!("DO NOT CLOSE THIS WINDOW.");
+	println!("Use Ctrl + C or close Unturned instead.");
 	println!("Monitoring logs...");
 
 	let log_path = unt_path.join("Logs").join("Client.log");
-	monitor_unturned_and_logs(&log_path);
+	monitor_unturned_and_logs(&log_path, running.clone());
 
 	println!("Detected client shutdown.");
 
@@ -340,18 +408,19 @@ fn main()
 	}
 
 	println!("\nFinished.");
-	print!("\nPress enter to continue ... ");
-	io::stdout().flush().unwrap();
-	let mut input = String::new();
-	io::stdin().read_line(&mut input).unwrap();
 }
 
-fn monitor_unturned_and_logs(log_path: &Path) 
+fn monitor_unturned_and_logs(log_path: &Path, running: Arc<AtomicBool>) 
 {
-	while !is_unturned_running() 
+	while !is_unturned_running() && running.load(Ordering::SeqCst) 
 	{
 		println!("Waiting for client to start...");
 		sleep(Duration::from_secs(2));
+	}
+	
+	if !running.load(Ordering::SeqCst) 
+	{
+		return;
 	}
 	
 	println!("Unturned is now running");
@@ -364,7 +433,7 @@ fn monitor_unturned_and_logs(log_path: &Path)
 	let mut last_position: u64 = 0;
 	let mut first_check = true;
 	
-	while is_unturned_running() 
+	while is_unturned_running() && running.load(Ordering::SeqCst) 
 	{
 		if !file_exists(log_path) 
 		{

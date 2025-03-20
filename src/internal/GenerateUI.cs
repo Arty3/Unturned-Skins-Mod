@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+
 using SDG.Provider;
 using SDG.Unturned;
 using UnityEngine;
@@ -37,6 +37,8 @@ namespace SkinsModule
 
         private static int                      selectedItem;
 
+        public  static bool                     isUpdatingContent;
+
         private static readonly int             maxSearchDistance = 1;
         private static readonly int             itemsInViewCount = 25;
         private static string                   searchString => searchField.Text;
@@ -45,21 +47,22 @@ namespace SkinsModule
 
         private static void updateItems()
         {
-            Log("Updating items in GenerateUI...");
+            isUpdatingContent = true;
 
             if (string.IsNullOrEmpty(searchString))
-            {
-                Log("Using default items list.");
                 items = Main.econInfoLoader.baseSkins.Values.ToList();
-                return;
-            }
 
-            items = searchTree.Search(
-                searchString.ToLowerInvariant(),
-                maxDistance: maxSearchDistance,
-                itemsPerPage: itemsInViewCount
-            ).ToList();
-        }
+            else
+            {
+				items = searchTree.Search(
+	                searchString.ToLowerInvariant(),
+	                maxDistance:  maxSearchDistance,
+	                itemsPerPage: itemsInViewCount
+                ).ToList();
+			}
+
+			isUpdatingContent = false;
+		}
 
         public static void updatePage()
         {
@@ -71,9 +74,9 @@ namespace SkinsModule
                 return;
             }
 
-            Log("Updating page content in GenerateUI...");
+			isUpdatingContent = true;
 
-            int startIdx = itemsInViewCount * pageIndex;
+			int startIdx = itemsInViewCount * pageIndex;
 
             for (int i = 0; i < itemsInViewCount; ++i)
             {
@@ -85,7 +88,9 @@ namespace SkinsModule
                     packageButtons[i].updateInventory(
                         0uL, 0, 0, isClickable: false, isLarge: false);
             }
-        }
+
+			isUpdatingContent = false;
+		}
 
         public static void viewPage(int newPage)
         {
@@ -105,8 +110,8 @@ namespace SkinsModule
 
         public static void closeEffectSelection()
         {
-            effectSelection.IsVisible = false;
-            selectionFrame.IsVisible = true;
+            effectSelection.IsVisible   = false;
+            selectionFrame.IsVisible    = true;
             removeEffectButtons();
         }
 
@@ -116,12 +121,12 @@ namespace SkinsModule
             {
                 active = true;
 
-                backButton.IsVisible      = true;
-                githubButton.IsVisible    = true;
-                selectionFrame.IsVisible  = true;
-                mythicalButton.IsVisible  = true;
-                particleButton.IsVisible  = true;
-                effectSelection.IsVisible = false;
+                backButton.IsVisible        = true;
+                githubButton.IsVisible      = true;
+                selectionFrame.IsVisible    = true;
+                mythicalButton.IsVisible    = true;
+                particleButton.IsVisible    = true;
+                effectSelection.IsVisible   = false;
 
                 pageBox.IsVisible           = true;
                 leftButton.IsVisible        = true;
@@ -152,7 +157,7 @@ namespace SkinsModule
                 if (MenuSurvivorsClothingUIPatch.wasLastOpenedInventory)
                 {
                     MenuSurvivorsClothingUIPatch.inventory.IsVisible = true;
-                    MenuSurvivorsClothingUI.viewPage(MenuSurvivorsClothingUIPatch.numberOfPages);
+                    MenuSurvivorsClothingUI.viewPage(MenuSurvivorsClothingUIPatch.numberOfPages - 1);
                 }
                 else
                     MenuSurvivorsClothingUIPatch.crafting.IsVisible = true;
@@ -162,12 +167,12 @@ namespace SkinsModule
                 MenuSurvivorsClothingUIPatch.originalBackButton.IsVisible = true;
                 MenuSurvivorsClothingUIPatch.generationMenuButton.IsVisible = true;
 
-                backButton.IsVisible      = false;
-                githubButton.IsVisible    = false;
-                mythicalButton.IsVisible  = false;
-                particleButton.IsVisible  = false;
-                selectionFrame.IsVisible  = false;
-                effectSelection.IsVisible = false;
+                backButton.IsVisible        = false;
+                githubButton.IsVisible      = false;
+                mythicalButton.IsVisible    = false;
+                particleButton.IsVisible    = false;
+                selectionFrame.IsVisible    = false;
+                effectSelection.IsVisible   = false;
 
                 pageBox.IsVisible           = false;
                 leftButton.IsVisible        = false;
@@ -203,8 +208,13 @@ namespace SkinsModule
 
         private static void onClickedBackButton(ISleekElement button)
         {
-            MenuSurvivorsClothingUI.open();
-            close();
+            if (effectSelection.IsVisible)
+                closeEffectSelection();
+            else
+            {
+				MenuSurvivorsClothingUI.open();
+				close();
+			}
         }
 
         private void onClickedGithubButton(ISleekElement button)
@@ -267,7 +277,9 @@ namespace SkinsModule
 
         private static void onClickedEffectButton(ISleekElement button)
         {
-            if (currentEffectPool == null || currentEffectPool.Count == 0)
+			isUpdatingContent = true;
+
+			if (currentEffectPool == null || currentEffectPool.Count == 0)
             {
                 Error("Effect pool is empty.");
                 return;
@@ -281,11 +293,13 @@ namespace SkinsModule
                 return;
             }
 
-            close();
+			close();
 
             Main.Instance.GenerateSpecificItem(selectedItem,
                 effectIndex != 0 ? currentEffectPool[effectIndex - 1] : "No Effect");
-        }
+
+			isUpdatingContent = false;
+		}
 
         private static void addEffectButton(string effect, int idx)
         {
@@ -326,19 +340,22 @@ namespace SkinsModule
 
             active = false;
 
-            pageIndex = 0;
+			isUpdatingContent = false;
+
+			pageIndex = 0;
 
             selectedItem = -1;
 
             container = MenuSurvivorsClothingUIPatch.container;
 
-            mythicalButton = new SleekButtonIcon(
-                Resources.Load<Texture2D>("Economy/Mystery/Icon_Large"), 300);
+			mythicalButton = new SleekButtonIcon(
+			    Resources.Load<Texture2D>("Economy/Mystery/Icon_Large"), 200
+			);
 
             mythicalButton.PositionOffset_Y = 10;
             mythicalButton.PositionOffset_X = 0;
-            mythicalButton.SizeScale_X = 0.1f;
-            mythicalButton.SizeOffset_Y = 370f;
+            mythicalButton.SizeScale_X = 0.20f;
+            mythicalButton.SizeOffset_Y = 200f;
             mythicalButton.enableRichText = true;
             mythicalButton.textColor = Palette.MYTHICAL;
             mythicalButton.shadowStyle = ETextContrastContext.Default;
@@ -347,29 +364,19 @@ namespace SkinsModule
             mythicalButton.tooltip = "???";
             mythicalButton.IsVisible = false;
 
-            ISleekLabel mythicalLabel = (ISleekLabel)typeof(SleekButtonIcon).GetField(
-                "label", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(mythicalButton);
-
-            ISleekImage mythicalImage = (ISleekImage)typeof(SleekButtonIcon).GetField(
-                "iconImage", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(mythicalButton);
-
-            mythicalLabel.PositionOffset_Y = 140f;
-            mythicalLabel.PositionOffset_X = -150f;
-
-            mythicalLabel.SizeOffset_X = mythicalImage.SizeOffset_X;
-
             mythicalButton.onClickedButton += onMythicalButtonClicked;
             mythicalButton.onRightClickedButton += onMythicalButtonClicked;
 
             container.AddChild(mythicalButton);
 
             particleButton = new SleekButtonIcon(
-                Provider.provider.economyService.LoadItemIcon(19000), 300);
+                Provider.provider.economyService.LoadItemIcon(19000), 200
+            );
 
-            particleButton.PositionOffset_Y = 10;
-            particleButton.PositionOffset_X = 350;
-            particleButton.SizeScale_X = 0.1f;
-            particleButton.SizeOffset_Y = 370f;
+            particleButton.PositionOffset_Y = 230;
+            particleButton.PositionOffset_X = 0;
+            particleButton.SizeScale_X = 0.20f;
+            particleButton.SizeOffset_Y = 200f;
             particleButton.enableRichText = true;
             particleButton.textColor = Palette.COLOR_Y;
             particleButton.fontSize = ESleekFontSize.Large;
@@ -377,17 +384,6 @@ namespace SkinsModule
             particleButton.shadowStyle = ETextContrastContext.Default;
             particleButton.tooltip = "???";
             particleButton.IsVisible = false;
-
-            ISleekLabel particleLabel = (ISleekLabel)typeof(SleekButtonIcon).GetField(
-                "label", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(particleButton);
-
-            ISleekImage particleImage = (ISleekImage)typeof(SleekButtonIcon).GetField(
-                "iconImage", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(particleButton);
-
-            particleLabel.PositionOffset_Y = 140f;
-            particleLabel.PositionOffset_X = -150f;
-
-            particleLabel.SizeOffset_X = particleImage.SizeOffset_X;
 
             particleButton.onClickedButton += onParticleButtonClicked;
             particleButton.onRightClickedButton += onParticleButtonClicked;
@@ -437,7 +433,7 @@ namespace SkinsModule
             container.AddChild(selectionFrame);
 
             packageButtons = new SleekInventory[itemsInViewCount];
-            for (int i = 0; i < packageButtons.Length; i++)
+            for (int i = 0; i < packageButtons.Length; ++i)
             {
                 SleekInventory sleekInventory = new SleekInventory
                 {

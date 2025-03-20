@@ -24,10 +24,90 @@ namespace SkinsModule
         public static SleekButtonIcon           craftingButton;
         public static bool                      wasLastOpenedInventory;
         public static List<SteamItemDetails_t>  filteredItems;
-        public static int                       numberOfPages => MathfEx.GetPageCount(
-                                                        filteredItems.Count, 25);
+        public static SleekInventory[]          packageButtons;
+
+		public static int numberOfPages
+		{
+			get
+			{
+				var filteredItems = (List<SteamItemDetails_t>)typeof(MenuSurvivorsClothingUI).GetField(
+					"filteredItems", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+				return MathfEx.GetPageCount(filteredItems.Count, 25);
+			}
+		}
 
         [HarmonyPostfix]
+        [HarmonyPatch("open")]
+        public static void Postfix_open()
+        {
+            ItemPersistenceManager.RestoreGeneratedItems();
+		}
+
+		[HarmonyPrefix]
+		[HarmonyPatch("onClickedInventory")]
+		public static bool Prefix_onClickedInventory(SleekInventory button)
+        {
+            int pageIndex = (int)typeof(MenuSurvivorsClothingUI).GetField(
+                "pageIndex", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+			packageButtons = (SleekInventory[])typeof(MenuSurvivorsClothingUI).GetField(
+	            "packageButtons", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+			filteredItems = (List<SteamItemDetails_t>)typeof(MenuSurvivorsClothingUI).GetField(
+	            "filteredItems", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+			int num     = packageButtons.Length * pageIndex;
+			int num2    = inventory.FindIndexOfChild(button);
+
+            if (num + num2 >= filteredItems.Count)
+                return false;
+
+            int item        = button.item;
+            ulong instance  = button.instance;
+            ushort quantity = button.quantity;
+
+			if (instance == 0)
+			{
+				Error("No instance ID found");
+				return false;
+			}
+
+			EEconFilterMode filterMode = (EEconFilterMode)typeof(MenuSurvivorsClothingUI).GetField(
+                "filterMode", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+            if (filterMode == EEconFilterMode.STAT_TRACKER ||
+                filterMode == EEconFilterMode.STAT_TRACKER_REMOVAL ||
+                filterMode == EEconFilterMode.RAGDOLL_EFFECT_REMOVAL ||
+                filterMode == EEconFilterMode.RAGDOLL_EFFECT)
+                return false;
+
+            else if (Provider.preferenceData.Allow_Ctrl_Shift_Alt_Salvage &&
+                     InputEx.GetKey(KeyCode.LeftControl) &&
+                     InputEx.GetKey(KeyCode.LeftShift) &&
+                     InputEx.GetKey(KeyCode.LeftAlt))
+                return false;
+
+            else if (InputEx.GetKey(ControlsSettings.other) &&
+                     packageButtons[num2].itemAsset != null &&
+					 button.itemAsset.type != EItemType.BOX)
+            {
+                MenuSurvivorsClothingItemUIPatch.handleCosmeticEquip(instance, button.itemAsset.type);
+                Characters.ToggleEquipItemByInstanceId(instance);
+			}
+
+            else
+            {
+                MenuSurvivorsClothingItemUI.viewItem(item, quantity, instance);
+                MenuSurvivorsClothingItemUI.open();
+                MenuSurvivorsClothingUI.close();
+            }
+
+            return false;
+        }
+
+
+		[HarmonyPostfix]
         [HarmonyPatch(MethodType.Constructor, new Type[] { })]
         public static void Postfix_Constructor(MenuSurvivorsClothingUI __instance)
         {
@@ -59,6 +139,9 @@ namespace SkinsModule
 
                 filteredItems = (List<SteamItemDetails_t>)typeof(MenuSurvivorsClothingUI).GetField(
                     "filteredItems", BindingFlags.Static | BindingFlags.NonPublic).GetValue(__instance);
+
+                packageButtons = (SleekInventory[])typeof(MenuSurvivorsClothingUI).GetField(
+                    "packageButtons", BindingFlags.Static | BindingFlags.NonPublic).GetValue(__instance);
             }
             catch (Exception e)
             {
@@ -95,7 +178,7 @@ namespace SkinsModule
 
             container.AddChild(generationMenuButton);
 
-            Log("Finished generating new layout");
+			Log("Finished generating new layout");
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Reflection;
 using SDG.Provider;
 using SDG.Unturned;
 using Steamworks;
+
 using static SkinsModule.ModuleLogger;
 
 namespace SkinsModule
@@ -19,8 +20,6 @@ namespace SkinsModule
         */
 
         public static bool canPersistItems = false;
-
-        private static HashSet<ulong> persistentItemIds = new HashSet<ulong>();
 
         public class EquippedCosmetic
         {
@@ -53,7 +52,6 @@ namespace SkinsModule
 
             ulong instanceId = item.m_itemId.m_SteamItemInstanceID;
 
-            persistentItemIds.Add(instanceId);
             cachedItems.Add(instanceId, item);
 
             if (hasParticleEffect &&
@@ -67,7 +65,7 @@ namespace SkinsModule
 
         public static void RegisterEquippedItem(ulong instanceId, int itemdefid, ushort mythicID, EItemType cosmeticType)
         {
-            if (instanceId != 0 && mythicID != 0 && !IsItemEquipped(instanceId, itemdefid))
+            if (instanceId != 0 && mythicID != 0 && !IsItemEquipped(instanceId))
             {
                 UnregisterItemOfSameType(cosmeticType);
                 equippedCosmetics[instanceId] = new EquippedCosmetic(itemdefid, mythicID, cosmeticType);
@@ -75,16 +73,16 @@ namespace SkinsModule
             }
         }
 
-        public static void UnregisterItemOfSameType(EItemType type)
-        {
-            var itemToRemove = equippedCosmetics.FirstOrDefault(
-                pair => pair.Value.cosmeticType == type);
+		public static void UnregisterItemOfSameType(EItemType type)
+		{
+			var itemToRemove = equippedCosmetics.FirstOrDefault(
+				pair => pair.Value.cosmeticType == type);
 
-            if (itemToRemove.Value != null)
-                UnregisterEquippedItem(itemToRemove.Key);
-        }
+			if (itemToRemove.Value != null)
+				UnregisterEquippedItem(itemToRemove.Key);
+		}
 
-        public static void UnregisterEquippedItem(ulong instanceId)
+		public static void UnregisterEquippedItem(ulong instanceId)
         {
             if (equippedCosmetics.ContainsKey(instanceId))
             {
@@ -93,47 +91,98 @@ namespace SkinsModule
             }
         }
 
-        public static bool IsItemEquipped(ulong instanceId, int itemdefid)
+        public static bool IsItemEquipped(ulong instanceId)
         {
-            var cosmetic = equippedCosmetics.Values.FirstOrDefault(x => x.itemDefId == itemdefid);
+			return equippedCosmetics.ContainsKey(instanceId);
+		}
 
-            return equippedCosmetics.ContainsKey(instanceId) || cosmetic != null;
-        }
+		public static ushort GetEffectForEquippedItem(int itemdefid)
+		{
+			if (GenerateUI.isUpdatingContent)
+				return 0;
 
-        public static ushort GetEffectForEquippedItem(int itemdefid)
+			var cosmetic = equippedCosmetics.Values
+				.FirstOrDefault(x => x.itemDefId == itemdefid);
+
+			if (cosmetic != null && cosmetic.effectId != 0)
+				return cosmetic.effectId;
+
+			ulong instance = GetInstanceFromId(itemdefid);
+
+			if (instance != 0)
+				return GetEffectForInstance(instance);
+
+			return 0;
+		}
+
+		public static ushort GetEffectForInstance(ulong instanceId)
+		{
+			if (equippedCosmetics.TryGetValue(instanceId, out var cosmetic))
+				return cosmetic.effectId;
+
+			if (cachedDynamicDetails.TryGetValue(instanceId, out var details))
+				return details.getParticleEffect();
+
+			return 0;
+		}
+
+		public static ulong GetInstanceFromId(int itemdefid)
         {
-            var cosmetic = equippedCosmetics.Values.FirstOrDefault(
-                            x => x.itemDefId == itemdefid);
+			var equipped = equippedCosmetics
+				.Where(pair => pair.Value.itemDefId == itemdefid)
+				.Select(pair => pair.Key)
+				.FirstOrDefault();
 
-            if (cosmetic != null && cosmetic.effectId == 0)
-                Warn($"Failed to find mythical effect for equipped item {itemdefid}");
+            if (equipped != 0)
+                return equipped;
 
-            return cosmetic != null ? cosmetic.effectId : (ushort)0;
-        }
+			var cachedInstance = cachedItems
+				.Where(pair => pair.Value.m_iDefinition.m_SteamItemDef == itemdefid)
+				.Select(pair => pair.Key)
+				.FirstOrDefault();
 
-        public static void RestoreGeneratedItems()
+			if (cachedInstance != 0)
+				return cachedInstance;
+
+			if (Provider.provider?.economyService?.inventoryDetails != null)
+			{
+				var inventoryInstance = Provider.provider.economyService.inventoryDetails
+					.Where(item => item.m_iDefinition.m_SteamItemDef == itemdefid)
+					.Select(item => item.m_itemId.m_SteamItemInstanceID)
+					.FirstOrDefault();
+
+				if (inventoryInstance != 0)
+					return inventoryInstance;
+			}
+
+			return 0;
+		}
+
+		public static void RestoreGeneratedItems()
         {
             if (!canPersistItems) return;
 
             foreach (var itemPair in cachedItems)
             {
-                if (persistentItemIds.Contains(itemPair.Key))
-                {
-                    if (cachedDynamicDetails.TryGetValue(itemPair.Key, out var details))
-                        addLocalItem(itemPair.Value, details.tags);
-                    else
-                        addLocalItem(itemPair.Value, string.Empty);
-                }
+                if (cachedDynamicDetails.TryGetValue(itemPair.Key, out var details))
+                    addLocalItem(itemPair.Value, details.tags);
+                else
+                    addLocalItem(itemPair.Value, string.Empty);
             }
 
-            Log("Restored generated items.");
+			Log("Restored generated items.");
         }
+
+        public static void EquipPreviouslyEquippedCosmetics()
+        {
+			foreach (var cosmetic in equippedCosmetics)
+				Characters.ToggleEquipItemByInstanceId(cosmetic.Key);
+		}
 
         public static void UnregisterGeneratedItem(ulong instanceId)
         {
             if (!canPersistItems) return;
 
-            persistentItemIds.Remove(instanceId);
             cachedItems.Remove(instanceId);
             cachedDynamicDetails.Remove(instanceId);
 
@@ -144,16 +193,15 @@ namespace SkinsModule
         {
             Log($"Adding local item {item.m_itemId.m_SteamItemInstanceID} to inventory...");
 
-            Provider.provider.economyService.inventoryDetails.Add(item);
+            if (!Provider.provider.economyService.inventoryDetails.Contains(item))
+                Provider.provider.economyService.inventoryDetails.Add(item);
 
-            if (Provider.provider.economyService.dynamicInventoryDetails.ContainsKey(item.m_itemId.m_SteamItemInstanceID))
-                Provider.provider.economyService.dynamicInventoryDetails.Remove(item.m_itemId.m_SteamItemInstanceID);
+            if (!Provider.provider.economyService.dynamicInventoryDetails.ContainsKey(item.m_itemId.m_SteamItemInstanceID))
+				Provider.provider.economyService.dynamicInventoryDetails.Add(
+	                item.m_itemId.m_SteamItemInstanceID, new DynamicEconDetails
+	                { tags = tags, dynamic_props = string.Empty });
 
-            Provider.provider.economyService.dynamicInventoryDetails.Add(
-                item.m_itemId.m_SteamItemInstanceID, new DynamicEconDetails
-                    { tags = tags, dynamic_props = string.Empty });
-
-            if (MenuSurvivorsClothingUI.active)
+			if (MenuSurvivorsClothingUI.active)
             {
                 try
                 {
