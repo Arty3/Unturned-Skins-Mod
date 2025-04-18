@@ -35,13 +35,13 @@ Download a precompiled version here:
 
 | Download | Release | Working | Notes |
 |:---------|:--------|:--------|:------|
-| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)| 1.0 | Buggy | Initial Release |
-| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip)| 1.1 | Buggy | Added Rio Assets |
-| [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip)| 1.2 | Yes | Fixed Issues |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)| 1.0 | Buggy | Initial Release |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip)| 1.1 | Buggy | Added Rio Assets |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip)| 1.2 | Yes | Fixed Issues |
 
 ## 💻 Usage
 
-- Unzip [SkinsMod.zip](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)
+- Unzip [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)
 - Execute `SkinsMod.exe` as administrator
 
 #### In your inventory, look for:
@@ -91,7 +91,7 @@ Download a precompiled version here:
 
 ## 💡 Feedback
 
-If you have any feedback, including suggestions, bug reports, or potential vulnerabilities, please don't hesitate to submit them in the [issues](https://github.com/DontCallMeLuca/Unturned-Skins-Mod/issues) section. If applicable, kindly provide detailed descriptions and replication steps to help me address them effectively.
+If you have any feedback, including suggestions, bug reports, or potential vulnerabilities, please don't hesitate to submit them in the [issues](https://github.com/Arty3/Unturned-Skins-Mod/issues) section. If applicable, kindly provide detailed descriptions and replication steps to help me address them effectively.
 
 #### Alternatively, find me here:
 
