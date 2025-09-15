@@ -35,13 +35,14 @@ Download a precompiled version here:
 
 | Download | Release | Working | Notes |
 |:---------|:--------|:--------|:------|
-| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)| 1.0 | Buggy | Initial Release |
-| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip)| 1.1 | Buggy | Added Rio Assets |
-| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip)| 1.2 | Yes | Fixed Issues |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip) | 1.0 | Buggy | Initial Release |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.1/SkinsMod.zip) | 1.1 | Buggy | Added Rio Assets |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.2/SkinsMod.zip) | 1.2 | Missing Assets | Fixed Issues |
+| [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.3/SkinsMod.zip) | 1.3 | Yes | Added Limestone Assets |
 
 ## 💻 Usage
 
-- Unzip [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.0/SkinsMod.zip)
+- Unzip [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.3/SkinsMod.zip)
 - Execute `SkinsMod.exe` as administrator
 
 #### In your inventory, look for:
@@ -122,6 +123,6 @@ The code isn't very maintainable and / or scalable. It is currently a very early
 - Possible server compatibility
 
 ## 📃 License
-This project uses the `GNU GENERAL PUBLIC LICENSE v3.0` license
+This project uses the `MIT LICENSE` license
 <br>
 For more info, please find the `LICENSE` file here: [License](LICENSE)
