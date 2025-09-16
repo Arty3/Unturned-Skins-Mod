@@ -12,23 +12,6 @@ The "mod" (more of a game patch) provides you with extensive skin utilities for 
 - [Usage](#-usage)
 - [Showcase](#-showcase)
 
-## ✨ Features
-
-- Vanilla style UI
-- Detailed logging
-- Custom skin generation
-- Infinite skin generation
-- Generate cosmetic particle crafts
-- Generate any skin-effect combination
-- Not bannable (Battleye isn't running)
-- Interactive and responsive UI
-- Fast and simple searching mechanism
-- Ability to use generated skins in-game
-- Random Mythical Generation
-- Infinite and free particle crafting
-- Removes skin country restrictions
-- Vanilla box opening and crafting is still available
-
 ## 🚀 Installation
 
 Download a precompiled version here:
@@ -82,6 +65,23 @@ Download a precompiled version here:
 | Use Generated Skins In-Game |
 |:---------------------------:|
 |![In-Game](./screenshots/example_ingame.png)|
+
+## ✨ Features
+
+- Vanilla style UI
+- Detailed logging
+- Custom skin generation
+- Infinite skin generation
+- Generate cosmetic particle crafts
+- Generate any skin-effect combination
+- Not bannable (Battleye isn't running)
+- Interactive and responsive UI
+- Fast and simple searching mechanism
+- Ability to use generated skins in-game
+- Random Mythical Generation
+- Infinite and free particle crafting
+- Removes skin country restrictions
+- Vanilla box opening and crafting is still available
 
 ## ⚠ Known Issues
 
