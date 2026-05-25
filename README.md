@@ -26,7 +26,7 @@ Download a precompiled version here:
 
 ## Usage
 
-- Unzip [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.3/SkinsMod.zip)
+- Unzip [SkinsMod.zip](https://github.com/Arty3/Unturned-Skins-Mod/releases/download/v1.4/SkinsMod.zip)
 - Execute `SkinsMod.exe` as administrator
 
 #### In your inventory, look for:
