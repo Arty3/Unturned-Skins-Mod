@@ -35,7 +35,7 @@ namespace SkinsModule
         private static int                      pageIndex;
         private static List<string>             currentEffectPool;
 
-        private static int                      selectedItem;
+		private static int                      selectedItem;
 
         public  static bool                     isUpdatingContent;
 
@@ -220,7 +220,7 @@ namespace SkinsModule
         private void onClickedGithubButton(ISleekElement button)
         {
             if (Provider.provider.browserService.canOpenBrowser)
-                Provider.provider.browserService.open("http://github.com/DontCallMeLuca/Unturned-Skins-Mod/");
+                Provider.provider.browserService.open("http://github.com/Arty3/Unturned-Skins-Mod/");
             else
                 Warn("Failed to open github link due to missing browser permissions");
         }
@@ -275,7 +275,7 @@ namespace SkinsModule
             Characters.characterYaw = state * 360f;
         }
 
-        private static void onClickedEffectButton(ISleekElement button)
+		private static void onClickedEffectButton(ISleekElement button)
         {
 			isUpdatingContent = true;
 

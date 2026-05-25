@@ -20,20 +20,23 @@ namespace SkinsModule
 {
     public class EconInfoLoader
     {
-        public Dictionary<int, UnturnedEconInfo> econInfo           { get; private set; }
+        // Unity's randomness engine seems to be flawed with its random state
+		private static readonly System.Random _random = new System.Random();
+
+		public Dictionary<int, UnturnedEconInfo> econInfo           { get; private set; }
 
         public Dictionary<int, UnturnedEconInfo> baseSkins          { get; private set; }
         public Dictionary<int, UnturnedEconInfo> skinsEconInfo      { get; private set; }
 		public Dictionary<int, UnturnedEconInfo> mythicalsEconInfo  { get; private set; }
 
-        /*
+		/*
             I could go and parse all the mythical .dat files
             but because there is no distinction between head mythicals
             and applicable crafting effects, I can only hardcode them,
             since the crafting logic is server-sided. :(
         */
 
-        private class EffectColorPair
+		private class EffectColorPair
         {
             public string   effect;
             public Color    color;
@@ -55,12 +58,20 @@ namespace SkinsModule
             { 30, new EffectColorPair("Blossoming",         new Color { r = 200, g = 0,   b = 255, a = 1f }) },
             { 51, new EffectColorPair("Crimson Navigator",  new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
             { 62, new EffectColorPair("Cascading Chips",    new Color { r = 255, g = 255, b = 255, a = 1f }) },
-            { 73, new EffectColorPair("Charred",            new Color { r = 0,   g = 0,   b = 0,   a = 1f }) },
-			{ 67, new EffectColorPair("Cooked",             new Color { r = 0,   g = 0,   b = 0,   a = 1f }) },
+            { 73, new EffectColorPair("Charred",            new Color { r = 25,  g = 25,  b = 25,  a = 1f }) },
+			{ 67, new EffectColorPair("Cooked",             new Color { r = 25,  g = 25,  b = 25,  a = 1f }) },
 			{ 52, new EffectColorPair("Dazzling",           new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 9,  new EffectColorPair("Bubbling",           new Color { r = 255, g = 255, b = 255, a = 1f }) },
             { 1,  new EffectColorPair("Burning",            new Color { r = 255, g = 130, b = 0,   a = 1f }) },
-            { 22, new EffectColorPair("Confetti",           new Color { r = 50,  g = 190, b = 0,   a = 1f }) },
+            { 74, new EffectColorPair("Angry",              new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
+            { 75, new EffectColorPair("Frost-Chained",      new Color { r = 0,   g = 225, b = 255, a = 1f }) },
+            { 76, new EffectColorPair("Fire-Chained",       new Color { r = 255, g = 130, b = 0,   a = 1f }) },
+            { 80, new EffectColorPair("InkFlamed",          new Color { r = 0,   g = 0,   b = 0,   a = 1f }) },
+            { 77, new EffectColorPair("Overloaded",         new Color { r = 255, g = 0,   b = 0,   a = 1f }) },
+            { 78, new EffectColorPair("Buffed",             new Color { r = 0,   g = 255, b = 0,   a = 1f }) },
+            { 81, new EffectColorPair("Starfall",           new Color { r = 0,   g = 255, b = 255, a = 1f }) },
+            { 79, new EffectColorPair("UFO",                new Color { r = 200, g = 0,   b = 255, a = 1f }) },
+			{ 22, new EffectColorPair("Confetti",           new Color { r = 50,  g = 190, b = 0,   a = 1f }) },
             { 55, new EffectColorPair("Golden Confetti",    new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 10, new EffectColorPair("Cosmic",             new Color { r = 255, g = 200, b = 0,   a = 1f }) },
             { 8,  new EffectColorPair("Divine",             new Color { r = 255, g = 200, b = 0,   a = 1f }) },
@@ -129,6 +140,12 @@ namespace SkinsModule
             { 9,  "Bubbling"            },
             { 1,  "Burning"             },
             { 62, "Cascading Chips"     },
+            { 74, "Angry"               },
+            { 75, "Frost-Chained"       },
+            { 76, "Fire-Chained"        },
+            { 77, "Overloaded"          },
+            { 78, "Buffed"              },
+            { 81, "Starfall"            },
             { 22, "Confetti"            },
             { 10, "Cosmic"              },
             { 11, "Electric"            },
@@ -446,7 +463,7 @@ namespace SkinsModule
             if (skinsEconInfo == null || skinsEconInfo.Count == 0) return -1;
 
 			return skinsEconInfo.Keys.ElementAt(
-				UnityEngine.Random.Range(0, skinsEconInfo.Count));
+				_random.Next(0, skinsEconInfo.Count));
 		}
 
         public int GetRandomMythicalItemDefId()
@@ -454,7 +471,7 @@ namespace SkinsModule
             if (mythicalsEconInfo == null || mythicalsEconInfo.Count == 0) return -1;
 
             return mythicalsEconInfo.Keys.ElementAt(
-                UnityEngine.Random.Range(0, mythicalsEconInfo.Count));
+				_random.Next(0, mythicalsEconInfo.Count));
         }
 
         public ushort GetRandomEffect()
@@ -462,7 +479,7 @@ namespace SkinsModule
             if (_particleEffects == null || _particleEffects.Count == 0) return 1;
 
             return _particleEffects.Keys.ElementAt(
-                UnityEngine.Random.Range(0, _particleEffects.Count));
+                _random.Next(0, _particleEffects.Count));
         }
 
 

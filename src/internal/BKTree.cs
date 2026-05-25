@@ -144,6 +144,22 @@ namespace SkinsModule
             return false;
         }
 
+        private static bool IsItemType(string query)
+        {
+            if (query == null)
+                return false;
+
+            query = query.ToLowerInvariant();
+
+            string[] types =
+            {
+                "hat", "mask", "shirt", "vest", "glasses",
+                "back", "backpack", "pants", "gun", "melee"
+            };
+
+            return types.Contains(query);
+        }
+
         public List<UnturnedEconInfo> Search(string query, int maxDistance, int itemsPerPage)
         {
             Log("Searching EconInfo BKTree...");
